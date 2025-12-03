@@ -8,6 +8,7 @@ public class Participant
     private double currentScore;
     private List<Participant> opponents; 
     private boolean wasParticipantByed;
+    private ParticipantStatus status;
 
     //additional statistics  
     private int winCount;
@@ -33,6 +34,7 @@ public class Participant
         this.winCount = 0;
         this.lossCount = 0;
         this.drawCount = 0;
+        this.status = ParticipantStatus.LOW;
     }
     
 
