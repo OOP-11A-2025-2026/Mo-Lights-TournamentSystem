@@ -198,8 +198,12 @@ public class Main {
         int choice = getIntInput("Your choice: ");
         
         if (choice == 1) {
-            tournament.autoGenerateRoundResults();
-            System.out.println("\nResults generated successfully!");
+            try {
+                tournament.autoGenerateRoundResults();
+                System.out.println("\nResults generated successfully!");
+            } catch (Exception e) {
+                System.out.println("Error generating results: " + e.getMessage());
+            }
         } else if (choice == 2) {
             manuallyEnterResults(roundMatches);
         } else {

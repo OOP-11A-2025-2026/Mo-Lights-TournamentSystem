@@ -74,8 +74,14 @@ public class Tournament {
         if (currentRound > 0) {
             throw new IllegalStateException("Cannot remove participants after tournament has started");
         }
-        
-        participants.removeIf(p -> p.getId() == participantId);
+        if (participantId <= 0) {
+            throw new IllegalArgumentException("participantId must be positive");
+        }
+
+        boolean removed = participants.removeIf(p -> p.getId() == participantId);
+        if (!removed) {
+            throw new IllegalArgumentException("Participant with ID " + participantId + " not found");
+        }
     }
     
     /**
@@ -221,12 +227,21 @@ public class Tournament {
      * Get all matches from a specific round
      */
     public List<Match> getRoundMatches(int round) {
+        if (round <= 0) {
+            throw new IllegalArgumentException("Round number must be positive");
+        }
+
+        if (round > currentRound) {
+            throw new IllegalArgumentException("Requested round has not been generated yet");
+        }
+
         List<Match> roundMatches = new ArrayList<>();
         for (Match match : matches) {
             if (match.getRoundNumber() == round) {
                 roundMatches.add(match);
             }
         }
+
         return roundMatches;
     }
     
@@ -234,13 +249,16 @@ public class Tournament {
      * Automatically generate results for all matches in the current round
      */
     public void autoGenerateRoundResults() {
-        List<Match> roundMatches = getRoundMatches(currentRound);
-        
-        if (roundMatches.isEmpty()) {
-            System.out.println("No matches in current round to generate results for.");
-            return;
+        if (currentRound == 0) {
+            throw new IllegalStateException("No rounds have been generated yet");
         }
-        
+
+        List<Match> roundMatches = getRoundMatches(currentRound);
+
+        if (roundMatches.isEmpty()) {
+            throw new IllegalStateException("No matches in current round to generate results for.");
+        }
+
         System.out.println("\n=== Generating Random Results for Round " + currentRound + " ===");
         for (Match match : roundMatches) {
             if (!match.isBye() && !match.isPlayed()) {
@@ -257,6 +275,10 @@ public class Tournament {
         if (match == null) {
             throw new IllegalArgumentException("Match cannot be null");
         }
+        if (!matches.contains(match)) {
+            throw new IllegalArgumentException("Match does not belong to this tournament");
+        }
+
         match.setResult(result);
     }
     
@@ -329,6 +351,10 @@ public class Tournament {
      * Save tournament to a text file
      */
     public void saveToFile(String filename) throws IOException {
+        if (filename == null || filename.trim().isEmpty()) {
+            throw new IllegalArgumentException("Filename cannot be null or empty");
+        }
+
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
             // Header
             LocalDateTime now = LocalDateTime.now();
@@ -394,6 +420,10 @@ public class Tournament {
      * For full reconstruction, you'd need to parse all match results
      */
     public static Tournament loadFromFile(String filename) throws IOException {
+        if (filename == null || filename.trim().isEmpty()) {
+            throw new IllegalArgumentException("Filename cannot be null or empty");
+        }
+
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
             String tournamentName = null;
@@ -422,9 +452,13 @@ public class Tournament {
                         // Parse participant line: "ID | Name | Score | W-D-L"
                         String[] parts = line.split("\\|");
                         if (parts.length >= 2) {
-                            int id = Integer.parseInt(parts[0].trim());
-                            String name = parts[1].trim();
-                            tournament.addParticipant(new Participant(id, name));
+                            try {
+                                int id = Integer.parseInt(parts[0].trim());
+                                String name = parts[1].trim();
+                                tournament.addParticipant(new Participant(id, name));
+                            } catch (NumberFormatException e) {
+                                throw new IOException("Invalid participant line: " + line, e);
+                            }
                         }
                     }
                     break;
