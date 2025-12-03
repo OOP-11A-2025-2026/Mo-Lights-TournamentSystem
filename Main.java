@@ -121,10 +121,33 @@ public class Main {
                 continue;
             }
             
+            // Prompt for status
+            System.out.println("Select status for " + name + ":");
+            System.out.println("1. LOW");
+            System.out.println("2. MEDIUM");
+            System.out.println("3. HIGH");
+            int statusChoice = getIntInput("Enter status (1-3): ");
+            
+            ParticipantStatus status;
+            switch (statusChoice) {
+                case 1:
+                    status = ParticipantStatus.LOW;
+                    break;
+                case 2:
+                    status = ParticipantStatus.MEDIUM;
+                    break;
+                case 3:
+                    status = ParticipantStatus.HIGH;
+                    break;
+                default:
+                    System.out.println("Invalid choice. Defaulting to LOW.");
+                    status = ParticipantStatus.LOW;
+            }
+            
             try {
-                Participant participant = new Participant(id, name);
+                Participant participant = new Participant(id, name, status);
                 tournament.addParticipant(participant);
-                System.out.println("Added: " + name);
+                System.out.println("Added: " + name + " (Status: " + status + ")");
                 participantCount++;
             } catch (Exception e) {
                 System.out.println("Error adding participant: " + e.getMessage());
@@ -192,7 +215,7 @@ public class Main {
         
         System.out.println("\n=== Enter Results for Round " + currentRound + " ===");
         System.out.println("Choose how to enter results:");
-        System.out.println("1. Auto-generate all results (45% / 45% / 10% distribution)");
+        System.out.println("1. Auto-generate all results");
         System.out.println("2. Manually enter each result");
         
         int choice = getIntInput("Your choice: ");

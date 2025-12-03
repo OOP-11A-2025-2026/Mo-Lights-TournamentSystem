@@ -1,0 +1,29 @@
+TOURNAMENT: t1
+PARTICIPANTS: 4
+ROUNDS: 2
+CURRENT_ROUND: 2
+DATE: 2025-12-03 21:58:18
+
+=== PARTICIPANTS ===
+ID   | Name                 | Score    | Status   | W-D-L       
+----------------------------------------------------------------------
+1    | mark                 | 2.0      | HIGH     | 2-0-0       
+2    | kaloyan              | 0.0      | HIGH     | 0-0-2       
+3    | stefco               | 1.0      | MEDIUM   | 1-0-1       
+4    | alek                 | 1.0      | LOW      | 1-0-1       
+
+=== ROUND 1 ===
+Match 1: mark vs kaloyan => 1-0
+Match 2: stefco vs alek => 0-1
+
+=== ROUND 2 ===
+Match 1: mark vs alek => 1-0
+Match 2: kaloyan vs stefco => 0-1
+
+=== FINAL STANDINGS ===
+Rank  | ID   | Name                 | Score    | W-D-L        | Buchholz  
+---------------------------------------------------------------------------
+1     | 1    | mark                 | 2.0      | 2-0-0        | 1.0       
+2     | 4    | alek                 | 1.0      | 1-0-1        | 3.0       
+3     | 3    | stefco               | 1.0      | 1-0-1        | 1.0       
+4     | 2    | kaloyan              | 0.0      | 0-0-2        | 3.0       

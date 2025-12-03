@@ -312,17 +312,17 @@ public class Tournament {
      */
     public void displayStandings() {
         System.out.println("\n=== CURRENT STANDINGS ===");
-        System.out.println(String.format("%-5s %-4s %-20s %-8s %-12s %-10s", 
-                                        "Rank", "ID", "Name", "Score", "W-D-L", "Buchholz"));
-        System.out.println("=".repeat(70));
+        System.out.println(String.format("%-5s %-4s %-20s %-8s %-8s %-12s %-10s", 
+                                        "Rank", "ID", "Name", "Score", "Status", "W-D-L", "Buchholz"));
+        System.out.println("=".repeat(80));
         
         List<Participant> standings = getStandings();
         int rank = 1;
         for (Participant p : standings) {
             String wdl = String.format("%d-%d-%d", p.getWinCount(), p.getDrawCount(), p.getLossCount());
-            System.out.println(String.format("%-5d %-4d %-20s %-8.1f %-12s %-10.1f", 
+            System.out.println(String.format("%-5d %-4d %-20s %-8.1f %-8s %-12s %-10.1f", 
                                             rank++, p.getId(), p.getName(), p.getScore(), 
-                                            wdl, p.getOpponentsSumScore()));
+                                            p.getStatus(), wdl, p.getOpponentsSumScore()));
         }
     }
     
@@ -369,13 +369,13 @@ public class Tournament {
             
             // Participants
             writer.println("=== PARTICIPANTS ===");
-            writer.println(String.format("%-4s | %-20s | %-8s | %-12s", 
-                                        "ID", "Name", "Score", "W-D-L"));
-            writer.println("-".repeat(60));
+            writer.println(String.format("%-4s | %-20s | %-8s | %-8s | %-12s", 
+                                        "ID", "Name", "Score", "Status", "W-D-L"));
+            writer.println("-".repeat(70));
             for (Participant p : participants) {
                 String wdl = String.format("%d-%d-%d", p.getWinCount(), p.getDrawCount(), p.getLossCount());
-                writer.println(String.format("%-4d | %-20s | %-8.1f | %-12s", 
-                                            p.getId(), p.getName(), p.getScore(), wdl));
+                writer.println(String.format("%-4d | %-20s | %-8.1f | %-8s | %-12s", 
+                                            p.getId(), p.getName(), p.getScore(), p.getStatus(), wdl));
             }
             writer.println();
             
@@ -449,13 +449,30 @@ public class Tournament {
                     reader.readLine(); // Skip separator line
                     
                     while ((line = reader.readLine()) != null && !line.trim().isEmpty()) {
-                        // Parse participant line: "ID | Name | Score | W-D-L"
+                        // Parse participant line: "ID | Name | Score | Status | W-D-L"
                         String[] parts = line.split("\\|");
-                        if (parts.length >= 2) {
+                        if (parts.length >= 4) {
                             try {
                                 int id = Integer.parseInt(parts[0].trim());
                                 String name = parts[1].trim();
-                                tournament.addParticipant(new Participant(id, name));
+                                // parts[2] is score, skip for now
+                                String statusStr = parts[3].trim();
+                                ParticipantStatus status;
+                                try {
+                                    status = ParticipantStatus.valueOf(statusStr);
+                                } catch (IllegalArgumentException e) {
+                                    status = ParticipantStatus.LOW; // Default fallback
+                                }
+                                tournament.addParticipant(new Participant(id, name, status));
+                            } catch (NumberFormatException e) {
+                                throw new IOException("Invalid participant line: " + line, e);
+                            }
+                        } else if (parts.length >= 2) {
+                            // Old format compatibility (no status field)
+                            try {
+                                int id = Integer.parseInt(parts[0].trim());
+                                String name = parts[1].trim();
+                                tournament.addParticipant(new Participant(id, name, ParticipantStatus.LOW));
                             } catch (NumberFormatException e) {
                                 throw new IOException("Invalid participant line: " + line, e);
                             }

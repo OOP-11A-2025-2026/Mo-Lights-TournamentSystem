@@ -16,7 +16,7 @@ public class Participant
     private int lossCount;
 
     // create a participant when they enter a tornament 
-    public Participant(int id, String name)
+    public Participant(int id, String name, ParticipantStatus status)
     {
         if(id <= 0)
         {
@@ -28,13 +28,17 @@ public class Participant
             throw new IllegalArgumentException("name must not be empty");
         }
         this.name = name;
+        if(status == null)
+        {
+            throw new IllegalArgumentException("status cannot be null");
+        }
+        this.status = status;
         this.currentScore = 0;
         this.opponents = new ArrayList<>();
         this.wasParticipantByed = false;
         this.winCount = 0;
         this.lossCount = 0;
         this.drawCount = 0;
-        this.status = ParticipantStatus.LOW;
     }
     
 
@@ -77,6 +81,11 @@ public class Participant
         return this.lossCount;
     }
 
+    public ParticipantStatus getStatus()
+    {
+        return this.status;
+    }
+
 
     //setters
     public void setName(String name)
@@ -86,6 +95,15 @@ public class Participant
             throw new IllegalArgumentException("name must not be empty");
         }
         this.name = name;
+    }
+
+    public void setStatus(ParticipantStatus status)
+    {
+        if (status == null)
+        {
+            throw new IllegalArgumentException("status cannot be null");
+        }
+        this.status = status;
     }
 
     public void addWin()

@@ -64,10 +64,11 @@ public class Match {
     }
     
     /**
-     * Generate random result based on probability distribution:
-     * - 45% chance Player 1 wins
-     * - 45% chance Player 2 wins
-     * - 10% chance Draw
+     * Generate random result based on probability distribution considering participant status:
+     * Same status: 45% / 45% / 10% draw
+     * HIGH-LOW: 55% high / 30% low / 15% draw
+     * HIGH-MEDIUM: 50% high / 35% medium / 15% draw
+     * MEDIUM-LOW: 50% medium / 35% low / 15% draw
      */
     public void generateRandomResult() {
         if (isBye) {
@@ -77,14 +78,57 @@ public class Match {
         Random random = new Random();
         int outcome = random.nextInt(100); // 0-99
         
-        if (outcome < 45) {
-            // 0-44: Player 1 wins (45%)
+        ParticipantStatus status1 = player1.getStatus();
+        ParticipantStatus status2 = player2.getStatus();
+        
+        // Determine probabilities based on status matchup
+        int player1WinChance;
+        int drawChance;
+        
+        if (status1 == status2) {
+            // Same status: 45% / 45% / 10%
+            player1WinChance = 45;
+            drawChance = 10;
+        } else if (status1 == ParticipantStatus.HIGH && status2 == ParticipantStatus.LOW) {
+            // HIGH vs LOW: 55% / 30% / 15%
+            player1WinChance = 55;
+            drawChance = 15;
+        } else if (status1 == ParticipantStatus.LOW && status2 == ParticipantStatus.HIGH) {
+            // LOW vs HIGH: 30% / 55% / 15%
+            player1WinChance = 30;
+            drawChance = 15;
+        } else if (status1 == ParticipantStatus.HIGH && status2 == ParticipantStatus.MEDIUM) {
+            // HIGH vs MEDIUM: 50% / 35% / 15%
+            player1WinChance = 50;
+            drawChance = 15;
+        } else if (status1 == ParticipantStatus.MEDIUM && status2 == ParticipantStatus.HIGH) {
+            // MEDIUM vs HIGH: 35% / 50% / 15%
+            player1WinChance = 35;
+            drawChance = 15;
+        } else if (status1 == ParticipantStatus.MEDIUM && status2 == ParticipantStatus.LOW) {
+            // MEDIUM vs LOW: 50% / 35% / 15%
+            player1WinChance = 50;
+            drawChance = 15;
+        } else if (status1 == ParticipantStatus.LOW && status2 == ParticipantStatus.MEDIUM) {
+            // LOW vs MEDIUM: 35% / 50% / 15%
+            player1WinChance = 35;
+            drawChance = 15;
+        } else {
+            // Default fallback (should never happen)
+            player1WinChance = 45;
+            drawChance = 10;
+        }
+        
+        int player2WinThreshold = player1WinChance + (100 - player1WinChance - drawChance);
+        
+        if (outcome < player1WinChance) {
+            // Player 1 wins
             setResult(MatchResult.WIN_PLAYER1);
-        } else if (outcome < 90) {
-            // 45-89: Player 2 wins (45%)
+        } else if (outcome < player2WinThreshold) {
+            // Player 2 wins
             setResult(MatchResult.WIN_PLAYER2);
         } else {
-            // 90-99: Draw (10%)
+            // Draw
             setResult(MatchResult.DRAW);
         }
     }
