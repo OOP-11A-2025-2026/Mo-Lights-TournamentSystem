@@ -1,7 +1,16 @@
+package com.molights.tournament;
+
 import java.util.Random;
 
+/**
+ * Represents a match between two participants in a Swiss tournament.
+ * Handles match results, BYE matches, and status-based probability calculations.
+ */
 public class Match {
     
+    /**
+     * Possible outcomes of a match
+     */
     public enum MatchResult {
         WIN_PLAYER1,
         WIN_PLAYER2,
@@ -15,7 +24,14 @@ public class Match {
     private int roundNumber;
     private boolean isBye;
     
-    // Regular match between two players
+    /**
+     * Creates a regular match between two players.
+     * 
+     * @param player1 First player
+     * @param player2 Second player
+     * @param roundNumber Round number this match belongs to
+     * @throws IllegalArgumentException if players are null or the same
+     */
     public Match(Participant player1, Participant player2, int roundNumber) {
         if (player1 == null || player2 == null) {
             throw new IllegalArgumentException("Players cannot be null");
@@ -30,7 +46,13 @@ public class Match {
         this.isBye = false;
     }
     
-    // BYE match (player gets free point)
+    /**
+     * Creates a BYE match (player gets free point).
+     * 
+     * @param player Player receiving the BYE
+     * @param roundNumber Round number this BYE belongs to
+     * @throws IllegalArgumentException if player is null
+     */
     public Match(Participant player, int roundNumber) {
         if (player == null) {
             throw new IllegalArgumentException("Player cannot be null");
@@ -65,10 +87,14 @@ public class Match {
     
     /**
      * Generate random result based on probability distribution considering participant status:
-     * Same status: 45% / 45% / 10% draw
-     * HIGH-LOW: 55% high / 30% low / 15% draw
-     * HIGH-MEDIUM: 50% high / 35% medium / 15% draw
-     * MEDIUM-LOW: 50% medium / 35% low / 15% draw
+     * <ul>
+     *   <li>Same status: 45% / 45% / 10% draw</li>
+     *   <li>HIGH-LOW: 55% high / 30% low / 15% draw</li>
+     *   <li>HIGH-MEDIUM: 50% high / 35% medium / 15% draw</li>
+     *   <li>MEDIUM-LOW: 50% medium / 35% low / 15% draw</li>
+     * </ul>
+     * 
+     * @throws IllegalStateException if this is a BYE match
      */
     public void generateRandomResult() {
         if (isBye) {
@@ -134,7 +160,12 @@ public class Match {
     }
     
     /**
-     * Manually set the result of the match
+     * Manually set the result of the match.
+     * Automatically applies result to both participants.
+     * 
+     * @param result The match result
+     * @throws IllegalArgumentException if result is null
+     * @throws IllegalStateException if trying to set non-WIN_PLAYER1 result for BYE match
      */
     public void setResult(MatchResult result) {
         if (result == null) {
@@ -150,8 +181,8 @@ public class Match {
     }
     
     /**
-     * Apply the match result to both participants
-     * Updates scores, statistics, and opponent lists
+     * Apply the match result to both participants.
+     * Updates scores, statistics, and opponent lists.
      */
     private void applyResultToParticipants() {
         if (result == MatchResult.NOT_PLAYED) {
@@ -195,14 +226,18 @@ public class Match {
     }
     
     /**
-     * Check if the match has been played
+     * Check if the match has been played.
+     * 
+     * @return true if match has a result, false otherwise
      */
     public boolean isPlayed() {
         return result != MatchResult.NOT_PLAYED;
     }
     
     /**
-     * Get a formatted string representation for display
+     * Get a formatted string representation for display.
+     * 
+     * @return Formatted match string
      */
     @Override
     public String toString() {
@@ -233,7 +268,9 @@ public class Match {
     }
     
     /**
-     * Get formatted string for file output
+     * Get formatted string for file output.
+     * 
+     * @return Formatted match string for file saving
      */
     public String toFileString() {
         if (isBye) {

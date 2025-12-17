@@ -181,20 +181,107 @@ Example:
 ### Prerequisites
 
 - Java Development Kit (JDK) 8 or higher
+- Apache Maven 3.6+ (for building)
 
-### Compilation
+### Building the Project
 
-```bash
-javac *.java
-```
-
-### Running
+#### Build the Library
 
 ```bash
-java Main
+mvn clean install
 ```
+
+This will create:
+- `target/tournament-system-1.0.0.jar` - Library JAR (core tournament system)
+- `target/tournament-system-1.0.0-demo.jar` - Executable demo application
+- `target/tournament-system-1.0.0-sources.jar` - Source code JAR
+- `target/tournament-system-1.0.0-javadoc.jar` - API documentation
+
+#### Run the Demo Application
+
+```bash
+java -jar target/tournament-system-1.0.0-demo.jar
+```
+
+Or with Maven:
+
+```bash
+mvn compile exec:java -Dexec.mainClass="com.molights.tournament.demo.Main"
+```
+
+### Using as a Library
+
+#### Option 1: Add JAR to your project
+
+Copy `target/tournament-system-1.0.0.jar` to your project and add it to your classpath.
+
+#### Option 2: Maven Dependency (Local)
+
+Install to your local Maven repository:
+
+```bash
+mvn install
+```
+
+Then add to your project's `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>com.molights</groupId>
+    <artifactId>tournament-system</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+#### Option 3: Direct Include
+
+Copy the source files from `src/main/java/com/molights/tournament/` to your project.
 
 ## 📖 Usage Guide
+
+### As a Library (Programmatic Usage)
+
+```java
+import com.molights.tournament.*;
+
+public class Example {
+    public static void main(String[] args) {
+        // Create a tournament
+        Tournament tournament = new Tournament("My Chess Tournament");
+        
+        // Add participants
+        tournament.addParticipant(new Participant(1, "Alice", ParticipantStatus.HIGH));
+        tournament.addParticipant(new Participant(2, "Bob", ParticipantStatus.MEDIUM));
+        tournament.addParticipant(new Participant(3, "Charlie", ParticipantStatus.LOW));
+        tournament.addParticipant(new Participant(4, "Diana", ParticipantStatus.MEDIUM));
+        
+        // Start the tournament
+        tournament.startTournament();
+        System.out.println("Total rounds: " + tournament.getTotalRounds());
+        
+        // Play rounds
+        for (int i = 0; i < tournament.getTotalRounds(); i++) {
+            tournament.generateNextRound();
+            tournament.autoGenerateRoundResults();  // Auto-generate results
+            tournament.displayStandings();
+        }
+        
+        // Save tournament
+        try {
+            tournament.saveToFile("my-tournament.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        // Get final standings programmatically
+        List<Participant> standings = tournament.getStandings();
+        Participant winner = standings.get(0);
+        System.out.println("Winner: " + winner.getName() + " with " + winner.getScore() + " points");
+    }
+}
+```
+
+### Using the Demo Application (CLI)
 
 ### 1. Create a Tournament
 
@@ -253,11 +340,21 @@ Menu → 9. Load Tournament
 ```
 Mo-Lights-TournamentSystem/
 │
-├── Main.java                  # Entry point and UI
-├── Tournament.java            # Tournament management logic
-├── Participant.java           # Participant data and methods
-├── ParticipantStatus.java     # Status enum (LOW/MEDIUM/HIGH)
-├── Match.java                 # Match logic and probability
+├── src/
+│   └── main/
+│       └── java/
+│           └── com/
+│               └── molights/
+│                   └── tournament/
+│                       ├── Tournament.java           # Core tournament management
+│                       ├── Match.java                # Match logic and probability
+│                       ├── Participant.java          # Participant data and methods
+│                       ├── ParticipantStatus.java    # Status enum
+│                       └── demo/
+│                           └── Main.java             # Demo CLI application
+│
+├── pom.xml                    # Maven build configuration
+├── .gitignore                 # Git ignore rules
 └── README.md                  # This file
 ```
 

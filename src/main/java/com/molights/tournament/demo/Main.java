@@ -1,7 +1,14 @@
+package com.molights.tournament.demo;
+
+import com.molights.tournament.*;
 import java.util.Scanner;
 import java.util.List;
 import java.io.IOException;
 
+/**
+ * Demo CLI application for the Mo-Lights Tournament System.
+ * Provides an interactive menu for managing Swiss-style tournaments.
+ */
 public class Main {
     
     private static Scanner scanner = new Scanner(System.in);
@@ -365,3 +372,4 @@ public class Main {
         }
     }
 }
+

@@ -1,8 +1,15 @@
+package com.molights.tournament;
+
 import java.util.*;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Swiss Tournament Management System.
+ * Handles participant management, Swiss pairing algorithm, round generation,
+ * match results, standings calculation, and tournament persistence.
+ */
 public class Tournament {
     
     private String name;
@@ -11,6 +18,12 @@ public class Tournament {
     private int totalRounds;
     private int currentRound;
     
+    /**
+     * Creates a new tournament with the given name.
+     * 
+     * @param name Tournament name (cannot be empty)
+     * @throws IllegalArgumentException if name is null or empty
+     */
     public Tournament(String name) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Tournament name cannot be empty");
@@ -44,8 +57,12 @@ public class Tournament {
     }
     
     /**
-     * Add a participant to the tournament
-     * Can only add participants before the tournament starts
+     * Add a participant to the tournament.
+     * Can only add participants before the tournament starts.
+     * 
+     * @param participant Participant to add
+     * @throws IllegalArgumentException if participant is null or ID already exists
+     * @throws IllegalStateException if tournament has already started
      */
     public void addParticipant(Participant participant) {
         if (participant == null) {
@@ -67,8 +84,12 @@ public class Tournament {
     }
     
     /**
-     * Remove a participant from the tournament
-     * Can only remove before tournament starts
+     * Remove a participant from the tournament.
+     * Can only remove before tournament starts.
+     * 
+     * @param participantId ID of participant to remove
+     * @throws IllegalArgumentException if participantId is invalid or not found
+     * @throws IllegalStateException if tournament has already started
      */
     public void removeParticipant(int participantId) {
         if (currentRound > 0) {
@@ -85,7 +106,10 @@ public class Tournament {
     }
     
     /**
-     * Start the tournament by calculating the number of rounds
+     * Start the tournament by calculating the number of rounds.
+     * Uses ceil(log2(n)) formula for Swiss tournament rounds.
+     * 
+     * @throws IllegalStateException if less than 2 participants or already started
      */
     public void startTournament() {
         if (participants.size() < 2) {
@@ -102,7 +126,10 @@ public class Tournament {
     }
     
     /**
-     * Generate pairings for the next round using Swiss system
+     * Generate pairings for the next round using Swiss system.
+     * Automatically creates matches and adds them to the tournament.
+     * 
+     * @throws IllegalStateException if tournament not started or all rounds complete
      */
     public void generateNextRound() {
         if (totalRounds == 0) {
@@ -130,10 +157,13 @@ public class Tournament {
     }
     
     /**
-     * Full Swiss pairing algorithm
+     * Full Swiss pairing algorithm implementation.
      * - Sort by score (and tiebreakers)
-     * - Avoid repeat pairings
+     * - Avoid repeat pairings when possible
      * - Handle BYE for odd number of participants
+     * 
+     * @param round Current round number
+     * @return List of matches for this round
      */
     private List<Match> generateSwissPairings(int round) {
         List<Match> roundMatches = new ArrayList<>();
@@ -224,7 +254,11 @@ public class Tournament {
     }
     
     /**
-     * Get all matches from a specific round
+     * Get all matches from a specific round.
+     * 
+     * @param round Round number to query
+     * @return List of matches from that round
+     * @throws IllegalArgumentException if round is invalid
      */
     public List<Match> getRoundMatches(int round) {
         if (round <= 0) {
@@ -246,7 +280,10 @@ public class Tournament {
     }
     
     /**
-     * Automatically generate results for all matches in the current round
+     * Automatically generate results for all matches in the current round.
+     * Uses status-based probability calculations.
+     * 
+     * @throws IllegalStateException if no rounds generated or no matches in current round
      */
     public void autoGenerateRoundResults() {
         if (currentRound == 0) {
@@ -269,7 +306,11 @@ public class Tournament {
     }
     
     /**
-     * Manually set result for a specific match
+     * Manually set result for a specific match.
+     * 
+     * @param match Match to set result for
+     * @param result Result to apply
+     * @throws IllegalArgumentException if match is null or doesn't belong to tournament
      */
     public void setMatchResult(Match match, Match.MatchResult result) {
         if (match == null) {
@@ -283,7 +324,14 @@ public class Tournament {
     }
     
     /**
-     * Get current standings sorted by score and tiebreakers
+     * Get current standings sorted by score and tiebreakers.
+     * Sorting order:
+     * 1. Score (descending)
+     * 2. Buchholz score (descending)
+     * 3. Number of wins (descending)
+     * 4. ID (ascending, for consistency)
+     * 
+     * @return Sorted list of participants
      */
     public List<Participant> getStandings() {
         List<Participant> standings = new ArrayList<>(participants);
@@ -308,7 +356,7 @@ public class Tournament {
     }
     
     /**
-     * Display current standings
+     * Display current standings to console.
      */
     public void displayStandings() {
         System.out.println("\n=== CURRENT STANDINGS ===");
@@ -327,7 +375,7 @@ public class Tournament {
     }
     
     /**
-     * Display all matches
+     * Display all matches to console.
      */
     public void displayAllMatches() {
         System.out.println("\n=== ALL MATCHES ===");
@@ -341,14 +389,21 @@ public class Tournament {
     }
     
     /**
-     * Check if tournament is complete
+     * Check if tournament is complete.
+     * 
+     * @return true if all rounds have been played
      */
     public boolean isComplete() {
         return currentRound >= totalRounds && totalRounds > 0;
     }
     
     /**
-     * Save tournament to a text file
+     * Save tournament to a text file.
+     * Includes all tournament data, participants, matches, and standings.
+     * 
+     * @param filename File path to save to
+     * @throws IOException if file cannot be written
+     * @throws IllegalArgumentException if filename is null or empty
      */
     public void saveToFile(String filename) throws IOException {
         if (filename == null || filename.trim().isEmpty()) {
@@ -415,9 +470,14 @@ public class Tournament {
     }
     
     /**
-     * Load tournament from a text file
-     * Note: This is a simplified loader that reads the basic tournament info
-     * For full reconstruction, you'd need to parse all match results
+     * Load tournament from a text file.
+     * Note: This is a simplified loader that reads the basic tournament info.
+     * For full reconstruction, you'd need to parse all match results.
+     * 
+     * @param filename File path to load from
+     * @return Loaded tournament instance
+     * @throws IOException if file cannot be read or is invalid format
+     * @throws IllegalArgumentException if filename is null or empty
      */
     public static Tournament loadFromFile(String filename) throws IOException {
         if (filename == null || filename.trim().isEmpty()) {

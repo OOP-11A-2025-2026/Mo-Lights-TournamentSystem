@@ -1,6 +1,12 @@
+package com.molights.tournament;
+
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a participant in a Swiss tournament.
+ * Tracks scores, statistics, opponents, and status level.
+ */
 public class Participant
 {
     private int id;
@@ -15,7 +21,14 @@ public class Participant
     private int drawCount;
     private int lossCount;
 
-    // create a participant when they enter a tornament 
+    /**
+     * Creates a new participant for the tournament.
+     * 
+     * @param id Unique identifier for the participant (must be positive)
+     * @param name Name of the participant (cannot be empty)
+     * @param status Skill level status (LOW, MEDIUM, or HIGH)
+     * @throws IllegalArgumentException if any parameter is invalid
+     */
     public Participant(int id, String name, ParticipantStatus status)
     {
         if(id <= 0)
@@ -144,7 +157,12 @@ public class Participant
         return opponents.contains(opponent);
     }
 
-    // for Buchholz tiebreak
+    /**
+     * Calculates the Buchholz score (sum of opponents' scores).
+     * Used as a tiebreaker in Swiss tournaments.
+     * 
+     * @return Sum of all opponents' scores
+     */
     public double getOpponentsSumScore()
     {
         double sum = 0;
@@ -155,7 +173,13 @@ public class Participant
         return sum;
     }
 
-    //BYE-ing participant once and adding a point
+    /**
+     * Awards a BYE to this participant.
+     * Can only be awarded once per participant.
+     * Awards 1 point and counts as a win.
+     * 
+     * @throws IllegalStateException if participant already received a BYE
+     */
     public void byeParticipant()
     {
         if (this.wasParticipantByed) 
@@ -178,3 +202,4 @@ public class Participant
 
 
 }
+
